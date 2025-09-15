@@ -128,8 +128,8 @@ export default function PlannerInput({ onBack, onCancel, onPlannerCreated }: Pla
     checkPlannerCount()
   }, [user])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
     if (!formData.title || !formData.topic || !formData.dueDate || !formData.assignmentType) {
       alert("Please fill in all required fields")

@@ -21,39 +21,62 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { useAuth } from "../contexts/auth-context"
 
-// PayPal integration removed
+interface PremiumFeature {
+  icon: React.ComponentType<any>
+  title: string
+  description: string
+  free: string
+  premium: string
+  enterprise: string
+}
 
-export default function PremiumPage() {
-  const { user, userData, refreshUserData } = useAuth()
+interface EnterpriseFeature {
+  icon: React.ComponentType<any>
+  title: string
+  description: string
+}
+
+interface UserData {
+  isPremium?: boolean
+  isEnterprise?: boolean
+  premiumExpiresAt?: string
+}
+
+interface User {
+  email?: string
+}
+
+export default function PremiumPage(): JSX.Element {
+  // Mock user and userData for demo - replace with actual auth context
+  const [user] = useState<User | null>({ email: "demo@example.com" })
+  const [userData] = useState<UserData | null>({ isPremium: false, isEnterprise: false })
+  const [loading] = useState<boolean>(false)
+  
   const router = useRouter()
   const [selectedPlan, setSelectedPlan] = useState<"premium" | "enterprise" | null>(null)
-  const [showInfoModal, setShowInfoModal] = useState(false)
+  const [showInfoModal, setShowInfoModal] = useState<boolean>(false)
 
   useEffect(() => {
-    // Temporarily disable auth redirect to debug
+    // Auth redirect disabled for demo
+    // Uncomment and modify as needed:
     // if (!user) {
     //   router.push("/login")
     //   return
     // }
   }, [user, router])
 
-  // Payment functionality removed
-
-  // All payment processing removed
-
-  const handleSelectPlan = (plan: "premium" | "enterprise") => {
+  const handleSelectPlan = (plan: "premium" | "enterprise"): void => {
     setSelectedPlan(plan)
     setShowInfoModal(true)
   }
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (): void => {
     setShowInfoModal(false)
     setSelectedPlan(null)
   }
 
-  const premiumFeatures = [
+  const premiumFeatures: PremiumFeature[] = [
     {
       icon: Zap,
       title: "Unlimited Assignment Planners",
@@ -104,7 +127,7 @@ export default function PremiumPage() {
     },
   ]
 
-  const enterpriseOnlyFeatures = [
+  const enterpriseOnlyFeatures: EnterpriseFeature[] = [
     {
       icon: Users,
       title: "Team Collaboration",
@@ -127,8 +150,8 @@ export default function PremiumPage() {
     },
   ]
 
-  // Plan Info Modal Component (Payment Disabled)
-  const PlanInfoModal = () => {
+  // Plan Info Modal Component
+  const PlanInfoModal = (): JSX.Element | null => {
     if (!selectedPlan) return null
 
     const planDetails = {
@@ -212,7 +235,7 @@ export default function PremiumPage() {
 
                 {/* Features List */}
                 <div className="space-y-2 mb-4">
-                  {plan.features.map((feature, index) => (
+                  {plan.features.map((feature: string, index: number) => (
                     <div key={index} className="flex items-center gap-2">
                       <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
                         <Check className="w-3 h-3 text-white" />
@@ -265,8 +288,8 @@ export default function PremiumPage() {
     )
   }
 
-  // Debug - show loading or user state
-  if (!user) {
+  // Loading states for demo
+  if (!user && loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
@@ -279,8 +302,7 @@ export default function PremiumPage() {
     )
   }
 
-  // Debug - show when userData is missing
-  if (!userData) {
+  if (!userData && user) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
@@ -289,7 +311,11 @@ export default function PremiumPage() {
           <p className="text-sm text-gray-500 mt-2">User: {user?.email || 'No user'}</p>
           <p className="text-sm text-gray-500">UserData: {userData ? 'Loaded' : 'Missing'}</p>
           <Button 
-            onClick={() => window.location.reload()} 
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.location.reload()
+              }
+            }} 
             className="mt-4"
             variant="outline"
           >
@@ -300,7 +326,7 @@ export default function PremiumPage() {
     )
   }
 
-  if (userData.isPremium || userData.isEnterprise) {
+  if (userData?.isPremium || userData?.isEnterprise) {
     const currentPlan = userData.isEnterprise ? "Enterprise" : "Premium"
     const currentIcon = userData.isEnterprise ? Users : Crown
 
@@ -330,7 +356,7 @@ export default function PremiumPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {premiumFeatures.map((feature, index) => {
+            {premiumFeatures.map((feature: PremiumFeature, index: number) => {
               const Icon = feature.icon
               const currentFeature = userData.isEnterprise ? feature.enterprise : feature.premium
               return (
@@ -357,7 +383,7 @@ export default function PremiumPage() {
             })}
 
             {userData.isEnterprise &&
-              enterpriseOnlyFeatures.map((feature, index) => {
+              enterpriseOnlyFeatures.map((feature: EnterpriseFeature, index: number) => {
                 const Icon = feature.icon
                 return (
                   <Card key={`enterprise-${index}`} className="border-blue-200 dark:border-blue-800">
@@ -421,7 +447,7 @@ export default function PremiumPage() {
               <p className="text-gray-600 dark:text-gray-300">Perfect for getting started</p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {premiumFeatures.map((feature, index) => (
+              {premiumFeatures.map((feature: PremiumFeature, index: number) => (
                 <div key={index} className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                     <Check className="h-3 w-3 text-gray-500" />
@@ -448,7 +474,7 @@ export default function PremiumPage() {
               <p className="text-gray-600 dark:text-gray-300">per month</p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {premiumFeatures.map((feature, index) => (
+              {premiumFeatures.map((feature: PremiumFeature, index: number) => (
                 <div key={index} className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
                     <Check className="h-3 w-3 text-white" />
@@ -488,7 +514,7 @@ export default function PremiumPage() {
                 <div className="text-sm font-medium text-gray-900 dark:text-white mb-2">
                   Everything in Premium, plus:
                 </div>
-                {enterpriseOnlyFeatures.map((feature, index) => (
+                {enterpriseOnlyFeatures.map((feature: EnterpriseFeature, index: number) => (
                   <div key={index} className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
                       <Check className="h-3 w-3 text-white" />

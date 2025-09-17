@@ -6,10 +6,26 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 
-export default function LandingPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+interface Feature {
+  icon: React.ComponentType<any>
+  title: string
+  description: string
+  color: string
+}
 
-  const features = [
+interface Testimonial {
+  name: string
+  role: string
+  content: string
+  rating: number
+  avatar: string
+  color: string
+}
+
+export default function LandingPage(): JSX.Element {
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
+
+  const features: Feature[] = [
     {
       icon: Brain,
       title: "AI-Powered Planning",
@@ -37,7 +53,7 @@ export default function LandingPage() {
     },
   ]
 
-  const testimonials = [
+  const testimonials: Testimonial[] = [
     {
       name: "Sarah Johnson",
       role: "Computer Science Student",
@@ -247,7 +263,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => {
+            {features.map((feature: Feature, index: number) => {
               const Icon = feature.icon
               return (
                 <Card
@@ -289,7 +305,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
+            {testimonials.map((testimonial: Testimonial, index: number) => (
               <Card
                 key={index}
                 className="hover-lift bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 animate-scale-in"
@@ -297,7 +313,7 @@ export default function LandingPage() {
               >
                 <CardContent className="p-6">
                   <div className="flex mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
+                    {[...Array(testimonial.rating)].map((_, i: number) => (
                       <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
                     ))}
                   </div>
@@ -338,6 +354,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Free Plan */}
             <Card className="border-2 border-gray-200 hover-lift bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-all duration-300">
               <CardContent className="p-8">
                 <div className="text-center mb-6">
@@ -349,27 +366,26 @@ export default function LandingPage() {
                   <p className="text-gray-600">Perfect for getting started</p>
                 </div>
                 <ul className="space-y-4 mb-8">
-                  <li className="flex items-center">
+                  <li className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span>3 assignment planners</span>
                   </li>
-                  <li className="flex items-center">
+                  <li className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span>AI-powered task breakdown</span>
                   </li>
-                  <li className="flex items-center">
+                  <li className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span>Progress tracking</span>
                   </li>
-                  <li className="flex items-center">
+                  <li className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span>PDF export</span>
                   </li>
                 </ul>
                 <Link href="/signup">
                   <Button
-                    className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent"
-                    variant="outline"
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     Get Started Free
                   </Button>
@@ -377,6 +393,7 @@ export default function LandingPage() {
               </CardContent>
             </Card>
 
+            {/* Premium Plan */}
             <Card className="border-2 border-purple-500 relative hover-lift bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 animate-pulse-glow">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg">
@@ -395,23 +412,23 @@ export default function LandingPage() {
                   <p className="text-gray-600">For serious students</p>
                 </div>
                 <ul className="space-y-4 mb-8">
-                  <li className="flex items-center">
+                  <li className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span>Unlimited assignment planners</span>
                   </li>
-                  <li className="flex items-center">
+                  <li className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span>Priority AI processing</span>
                   </li>
-                  <li className="flex items-center">
+                  <li className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span>Advanced export options</span>
                   </li>
-                  <li className="flex items-center">
+                  <li className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span>Email reminders</span>
                   </li>
-                  <li className="flex items-center">
+                  <li className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span>Priority support</span>
                   </li>
@@ -547,4 +564,4 @@ export default function LandingPage() {
       </footer>
     </div>
   )
-}
+} 

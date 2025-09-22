@@ -15,6 +15,7 @@ import {
   FileImage,
   User,
   LogOut,
+  Target,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -25,6 +26,7 @@ import type { PlannerData } from "../lib/firestore"
 
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "productivity", label: "Productivity", icon: Target },
   { id: "insight", label: "Insight", icon: BarChart3 },
   { id: "schedule", label: "Schedule", icon: Calendar },
   { id: "report", label: "Report", icon: FileText },

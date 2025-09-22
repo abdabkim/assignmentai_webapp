@@ -1,8 +1,8 @@
-// File: C:\Users\Kim\OneDrive\Desktop\essay-planner\app\landing\page.tsx
-import * as entry from '../../../../app/landing/page.js'
+// File: C:\Users\Kim\OneDrive\Desktop\essay-planner\app\premium\page.tsx
+import * as entry from '../../../../app/premium/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
-type TEntry = typeof import('../../../../app/landing/page.js')
+type TEntry = typeof import('../../../../app/premium/page.js')
 
 // Check that the entry is a valid entry
 checkFields<Diff<{

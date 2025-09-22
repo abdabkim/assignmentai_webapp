@@ -19,6 +19,7 @@ import ScheduleView from "../components/schedule-view"
 import ReportView from "../components/report-view"
 import SettingsView from "../components/settings-view"
 import ProfileView from "../components/profile-view"
+import ProductivityHub from "../components/productivity/productivity-hub"
 import { getUserPlanners, deletePlannerFromFirestore, savePlannerToFirestore } from "../lib/firestore"
 import { getPlanners, savePlannerLocally, deletePlannerLocally } from "../lib/storage"
 import type { Planner } from "../lib/storage"
@@ -385,6 +386,7 @@ export default function Dashboard() {
           )}
 
           {/* Other Views - Full Width */}
+          {activeView === "productivity" && <ProductivityHub />}
           {activeView === "insight" && <InsightView planners={planners} />}
           {activeView === "schedule" && <ScheduleView planners={planners} />}
           {activeView === "report" && <ReportView planners={planners} />}

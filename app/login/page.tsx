@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { BookOpen, Eye, EyeOff, Loader2, Mail, CheckCircle } from "lucide-react"
+import { BookOpen, Eye, EyeOff, Loader2, Mail, CheckCircle, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -218,9 +218,20 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex items-center justify-center mb-4">
-            <BookOpen className="h-8 w-8 text-blue-600" />
-            <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">EssayPlanner AI</span>
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/landing')}
+              className="p-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center">
+              <BookOpen className="h-8 w-8 text-blue-600" />
+              <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">EssayPlanner AI</span>
+            </div>
+            <div className="w-10"></div>
           </div>
           <CardTitle className="text-2xl dark:text-white">Welcome Back</CardTitle>
           <p className="text-gray-600 dark:text-gray-300">Sign in to your account</p>

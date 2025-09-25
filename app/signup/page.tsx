@@ -5,12 +5,38 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { BookOpen, Eye, EyeOff, Loader2 } from "lucide-react"
+import { BookOpen, Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { signUp, signInWithGoogle, validateEmail, validatePassword } from "../lib/auth"
+
+// Local password validation function that returns the expected object structure
+const validatePasswordLocal = (password: string) => {
+  const errors: string[] = []
+  
+  if (password.length < 8) {
+    errors.push("Password must be at least 8 characters long")
+  }
+  if (!/[A-Z]/.test(password)) {
+    errors.push("Password must contain at least one uppercase letter")
+  }
+  if (!/[a-z]/.test(password)) {
+    errors.push("Password must contain at least one lowercase letter")
+  }
+  if (!/\d/.test(password)) {
+    errors.push("Password must contain at least one number")
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    errors.push("Password must contain at least one special character")
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  }
+}
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -34,7 +60,7 @@ export default function SignUpPage() {
 
     // Real-time password validation
     if (field === "password") {
-      const validation = validatePassword(value)
+      const validation = validatePasswordLocal(value)
       setPasswordErrors(validation.errors)
     }
   }
@@ -64,7 +90,7 @@ export default function SignUpPage() {
       setError("Password is required")
       return false
     }
-    const passwordValidation = validatePassword(formData.password)
+    const passwordValidation = validatePasswordLocal(formData.password)
     if (!passwordValidation.isValid) {
       setError("Please fix the password requirements below")
       return false
@@ -85,7 +111,8 @@ export default function SignUpPage() {
     setError("")
 
     try {
-      await signUp(formData.fullName, formData.username, formData.email, formData.password)
+      // signUp expects: email, password, fullName
+      await signUp(formData.email, formData.password, formData.fullName)
       router.push("/login?message=Account created successfully! Please log in.")
     } catch (error: any) {
       setError(error.message || "Failed to create account")
@@ -112,9 +139,20 @@ export default function SignUpPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex items-center justify-center mb-4">
-            <BookOpen className="h-8 w-8 text-blue-600" />
-            <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">EssayPlanner AI</span>
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/landing')}
+              className="p-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center">
+              <BookOpen className="h-8 w-8 text-blue-600" />
+              <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">EssayPlanner AI</span>
+            </div>
+            <div className="w-10"></div>
           </div>
           <CardTitle className="text-2xl dark:text-white">Create Your Account</CardTitle>
           <p className="text-gray-600 dark:text-gray-300">Start planning your assignments with AI</p>

@@ -1,22 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: true,
   swcMinify: true,
-   typescript: {
-    ignoreBuildErrors: true, // ⛔ Skip type checking during build
+  typescript: {
+    ignoreBuildErrors: false,
   },
-  webpack: (config, { dev }) => {
-    // Fixes npm packages that depend on `fs` module
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-    };
-    
-    // Clear cache in development
-    if (dev) {
-      config.cache = false;
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        stream: false,
+        util: false,
+        url: false,
+        buffer: false,
+        querystring: false,
+      };
     }
-    
     return config;
   },
 }

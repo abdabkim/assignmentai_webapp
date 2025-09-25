@@ -1,17 +1,21 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Download, Bell, BellOff, CheckCircle, Lightbulb } from "lucide-react"
+import { ArrowLeft, Download, Bell, BellOff, CheckCircle, Lightbulb, Brain } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { updatePlannerInFirestore } from "../lib/firestore"
 import { exportToPDF } from "../lib/pdf-export"
 import { requestNotificationPermission, scheduleNotification } from "../lib/notifications"
+import { saveTaskCompletionState, updatePlannerLocally } from "../lib/storage"
+import SmartBreakdown from "./assignment/smart-breakdown"
+import UrgencyIndicator from "./assignment/urgency-indicator"
 
 export default function PlannerView({ planner, onBack, onUpdate }) {
   const [localPlanner, setLocalPlanner] = useState(planner)
@@ -25,6 +29,31 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
     return Math.round((completed / localPlanner.tasks.length) * 100)
   }
 
+  const handleTasksGenerated = (newTasks) => {
+    const updatedPlanner = {
+      ...localPlanner,
+      tasks: newTasks,
+      updatedAt: new Date().toISOString()
+    }
+    setLocalPlanner(updatedPlanner)
+    onUpdate(updatedPlanner)
+  }
+
+  const handlePlannerUpdate = async (updates) => {
+    const updatedPlanner = {
+      ...localPlanner,
+      ...updates
+    }
+    setLocalPlanner(updatedPlanner)
+    
+    try {
+      await updatePlannerInFirestore(localPlanner.id, updates)
+      onUpdate(updatedPlanner)
+    } catch (error) {
+      console.error('Error updating planner:', error)
+    }
+  }
+
   const handleTaskToggle = async (taskIndex) => {
     if (!localPlanner.tasks || taskIndex < 0 || taskIndex >= localPlanner.tasks.length) {
       console.error("Invalid task index:", taskIndex)
@@ -34,11 +63,19 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
     setLoading(true)
 
     try {
-      const updatedTasks = localPlanner.tasks.map((task, index) =>
-        index === taskIndex ? { ...task, completed: !task.completed } : task,
+      const task = localPlanner.tasks[taskIndex]
+      const newCompletedState = !task.completed
+      
+      // Save task completion state to persistent storage
+      if (task.id && localPlanner.id) {
+        saveTaskCompletionState(localPlanner.id, task.id, newCompletedState)
+      }
+      
+      const updatedTasks = localPlanner.tasks.map((t, index) =>
+        index === taskIndex ? { ...t, completed: newCompletedState } : t,
       )
 
-      const completedCount = updatedTasks.filter((task) => task.completed).length
+      const completedCount = updatedTasks.filter((t) => t.completed).length
       const progress = Math.round((completedCount / updatedTasks.length) * 100)
 
       const updatedPlanner = {
@@ -48,18 +85,28 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
       }
 
       setLocalPlanner(updatedPlanner)
-
-      // Update in Firestore
-      await updatePlannerInFirestore(localPlanner.id, {
+      
+      // Update local storage
+      updatePlannerLocally(localPlanner.id, {
         tasks: updatedTasks,
         progress,
       })
 
+      // Try to update in Firestore
+      try {
+        await updatePlannerInFirestore(localPlanner.id, {
+          tasks: updatedTasks,
+          progress,
+        })
+      } catch (firestoreError) {
+        console.log("Firestore update failed, but local update succeeded:", firestoreError)
+      }
+
       onUpdate(updatedPlanner)
 
       // Schedule notification for next incomplete task
-      if (notificationsEnabled && !localPlanner.tasks[taskIndex].completed) {
-        const nextTask = updatedPlanner.tasks.find((task) => !task.completed)
+      if (notificationsEnabled && newCompletedState) {
+        const nextTask = updatedTasks.find((t) => !t.completed)
         if (nextTask) {
           scheduleNotification(nextTask, localPlanner.title)
         }
@@ -233,24 +280,38 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
           </CardContent>
         </Card>
 
-        {/* Assignment Topic */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Assignment Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{localPlanner.topic}</p>
-            {localPlanner.wordCount && (
-              <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-                Target word count: {localPlanner.wordCount} words
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Main Content with Tabs */}
+        <Tabs defaultValue="tasks" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="tasks" className="gap-2">
+              <CheckCircle className="h-4 w-4" />
+              Task Management
+            </TabsTrigger>
+            <TabsTrigger value="smart" className="gap-2">
+              <Brain className="h-4 w-4" />
+              Smart Analysis
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Tasks List */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Assignment Tasks</h2>
+          <TabsContent value="tasks" className="space-y-6">
+            {/* Assignment Topic */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Assignment Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{localPlanner.topic}</p>
+                {localPlanner.wordCount && (
+                  <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                    Target word count: {localPlanner.wordCount} words
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Tasks List */}
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Assignment Tasks</h2>
 
           {localPlanner.tasks &&
             localPlanner.tasks.map((task, index) => (
@@ -355,6 +416,16 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
             </CardContent>
           </Card>
         )}
+      </TabsContent>
+
+      <TabsContent value="smart" className="space-y-6">
+        <SmartBreakdown 
+          planner={localPlanner}
+          onTasksGenerated={handleTasksGenerated}
+          onPlannerUpdate={handlePlannerUpdate}
+        />
+      </TabsContent>
+    </Tabs>
       </div>
     </div>
   )

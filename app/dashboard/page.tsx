@@ -7,12 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Plus, Calendar, BookOpen, BarChart3, Trash2, Edit, Clock } from "lucide-react"
+import { Plus, Calendar, BookOpen, BarChart3, Trash2, Edit, Clock, Menu, X } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Sidebar from "../components/sidebar"
 import RightSidebar from "../components/right-sidebar"
 import PlannerInput from "../components/planner-input"
 import PlannerView from "../components/planner-view"
+import UrgencyIndicator from "../components/assignment/urgency-indicator"
 
 import InsightView from "../components/insight-view"
 import ScheduleView from "../components/schedule-view"
@@ -34,6 +35,8 @@ export default function Dashboard() {
   const [hasLoadedPlanners, setHasLoadedPlanners] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPlannerInput, setShowPlannerInput] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false)
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -123,6 +126,9 @@ export default function Dashboard() {
   const handleDeletePlanner = async (plannerId: string) => {
     if (!plannerId) return
 
+    // Check if user is premium
+    const isPremium = userData?.isPremium || userData?.isEnterprise || false
+
     try {
       // Try to delete from Firestore first
       try {
@@ -130,8 +136,8 @@ export default function Dashboard() {
       } catch (error: any) {
         console.error("Error deleting from Firestore:", error)
 
-        // Fallback to localStorage
-        deletePlannerLocally(plannerId)
+        // Fallback to localStorage with premium check
+        deletePlannerLocally(plannerId, isPremium)
 
         if (error.message !== "permissions") {
           setError("Deleted locally. Will sync when online.")
@@ -148,7 +154,7 @@ export default function Dashboard() {
       }
     } catch (error: any) {
       console.error("Error deleting planner:", error)
-      setError(`Failed to delete planner: ${error.message}`)
+      setError(error.message || "Failed to delete planner")
     }
   }
 
@@ -216,10 +222,10 @@ export default function Dashboard() {
   const isFullPageView = ["insight", "schedule", "report", "settings", "profile"].includes(activeView)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       <div className="flex">
         {/* Left Sidebar - Fixed */}
-        <div className="fixed left-0 top-0 h-full w-64 z-10">
+        <div className="fixed left-0 top-0 h-full w-64 z-10 backdrop-blur-sm">
           <Sidebar 
             currentView={activeView} 
             onViewChange={setActiveView}
@@ -231,10 +237,10 @@ export default function Dashboard() {
         </div>
 
         {/* Main Content - Adjusted margins */}
-        <main className={`flex-1 ml-64 ${!isFullPageView ? 'mr-80' : ''} p-8`}>
+        <main className={`flex-1 ml-64 ${!isFullPageView ? 'mr-80' : ''} p-8 animate-in fade-in-50 duration-500`}>
           {error && (
-            <Alert className="mb-6">
-              <AlertDescription>{error}</AlertDescription>
+            <Alert className="mb-6 bg-red-50 border-red-200 animate-in slide-in-from-top-3 duration-300">
+              <AlertDescription className="text-red-700">{error}</AlertDescription>
             </Alert>
           )}
 
@@ -242,77 +248,143 @@ export default function Dashboard() {
           {activeView === "dashboard" && (
             <div className="space-y-8 max-w-7xl mx-auto">
               {/* Header */}
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                    Welcome back, {userData?.username || user.email}!
-                  </h1>
-                  <p className="text-lg text-gray-600 dark:text-gray-300">
-                    Manage your assignments and track your progress
-                  </p>
+              <div className="relative">
+                {/* Background decoration */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 rounded-3xl transform rotate-1"></div>
+                <div className="relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl p-8 border border-white/20 shadow-xl">
+                  <div className="flex justify-between items-center">
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                          <span className="text-xl font-bold text-white">
+                            {(userData?.username || user?.email || 'U').charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                            Welcome back, {userData?.username || user?.email?.split('@')[0] || 'Student'}! 👋
+                          </h1>
+                          <p className="text-slate-600 dark:text-slate-400 flex items-center space-x-2">
+                            <span>Ready to tackle your assignments?</span>
+                            <span className="animate-pulse">✨</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={() => setShowPlannerInput(true)} 
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3"
+                      size="lg"
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      Create Assignment
+                    </Button>
+                  </div>
                 </div>
-                <Button onClick={() => setShowPlannerInput(true)} size="lg" className="px-6 py-3">
-                  <Plus className="h-5 w-5 mr-2" />
-                  New Assignment
-                </Button>
               </div>
 
               {/* Stats Cards */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="hover:shadow-lg transition-shadow">
+                <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-white to-blue-50/50 dark:from-slate-800 dark:to-blue-900/20 border-0 shadow-xl">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Assignments</CardTitle>
-                    <BookOpen className="h-5 w-5 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-300">Total Assignments</CardTitle>
+                    <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-md group-hover:scale-110 transition-transform duration-200">
+                      <BookOpen className="h-4 w-4 text-white" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{planners.length}</div>
-                    <p className="text-xs text-muted-foreground mt-1">Active projects</p>
+                    <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                      {planners.length}
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center">
+                      <span className="inline-block w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                      Active projects
+                    </p>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
+                <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-white to-green-50/50 dark:from-slate-800 dark:to-green-900/20 border-0 shadow-xl">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Overall Progress</CardTitle>
-                    <BarChart3 className="h-5 w-5 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-300">Overall Progress</CardTitle>
+                    <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md group-hover:scale-110 transition-transform duration-200">
+                      <BarChart3 className="h-4 w-4 text-white" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{calculateOverallProgress()}%</div>
-                    <Progress value={calculateOverallProgress()} className="mt-3 h-2" />
+                    <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                      {calculateOverallProgress()}%
+                    </div>
+                    <div className="mt-3">
+                      <Progress 
+                        value={calculateOverallProgress()} 
+                        className="h-2 bg-green-100 dark:bg-green-900/30" 
+                      />
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
+                <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-white to-purple-50/50 dark:from-slate-800 dark:to-purple-900/20 border-0 shadow-xl">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Upcoming Deadlines</CardTitle>
-                    <Calendar className="h-5 w-5 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-300">Upcoming Deadlines</CardTitle>
+                    <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-md group-hover:scale-110 transition-transform duration-200">
+                      <Calendar className="h-4 w-4 text-white" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{getUpcomingDeadlines().length}</div>
-                    <p className="text-xs text-muted-foreground mt-1">Due this week</p>
+                    <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
+                      {getUpcomingDeadlines().length}
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center">
+                      <span className="inline-block w-2 h-2 bg-orange-400 rounded-full mr-2 animate-pulse"></span>
+                      Due this week
+                    </p>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Recent Assignments */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-xl">Your Assignments</CardTitle>
+              <Card className="hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-xl">
+                <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50/30 dark:from-slate-800 dark:to-blue-900/20 rounded-t-xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-md">
+                      <BookOpen className="h-5 w-5 text-white" />
+                    </div>
+                    <CardTitle className="text-xl bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                      Your Assignments
+                    </CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   {loading ? (
-                    <div className="flex justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <div className="flex justify-center py-12">
+                      <div className="relative">
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
+                        <div className="absolute inset-0 rounded-full bg-blue-100/20 animate-ping"></div>
+                      </div>
                     </div>
                   ) : planners.length === 0 ? (
-                    <div className="text-center py-8">
-                      <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No assignments yet</h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">
-                        Create your first assignment to get started
+                    <div className="text-center py-16">
+                      <div className="relative mb-8">
+                        <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl mx-auto flex items-center justify-center shadow-inner">
+                          <BookOpen className="h-12 w-12 text-blue-500 dark:text-blue-400" />
+                        </div>
+                        <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                          <span className="text-white text-lg">✨</span>
+                        </div>
+                      </div>
+                      <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
+                        Ready to start your academic journey?
+                      </h3>
+                      <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
+                        Create your first assignment and let our AI help you break it down into manageable steps. 🎓
                       </p>
-                      <Button onClick={() => setShowPlannerInput(true)}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create Assignment
+                      <Button 
+                        onClick={() => setShowPlannerInput(true)}
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3"
+                        size="lg"
+                      >
+                        <Plus className="h-5 w-5 mr-2" />
+                        Create Your First Assignment
                       </Button>
                     </div>
                   ) : (
@@ -330,50 +402,83 @@ export default function Dashboard() {
                         return (
                           <div
                             key={planner.id}
-                            className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            className="group relative p-6 bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-800 dark:to-slate-700/50 rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
                           >
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h3 className="font-semibold text-gray-900 dark:text-white">{planner.title}</h3>
-                                <Badge variant={planner.assignmentType === "essay" ? "default" : "secondary"}>
-                                  {planner.assignmentType || "essay"}
-                                </Badge>
-                                <Badge
-                                  variant={
-                                    daysUntilDue < 0 ? "destructive" : daysUntilDue <= 3 ? "secondary" : "outline"
-                                  }
-                                >
-                                  <Clock className="h-3 w-3 mr-1" />
-                                  {daysUntilDue < 0
-                                    ? "Overdue"
-                                    : daysUntilDue === 0
-                                      ? "Due Today"
-                                      : `${daysUntilDue} days left`}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{planner.topic}</p>
-                              <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2">
-                                  <Progress value={progress} className="w-24 h-2" />
-                                  <span className="text-sm text-gray-600 dark:text-gray-400">{progress}%</span>
+                            {/* Decorative background elements */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100/50 to-indigo-100/50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-500"></div>
+                            <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-purple-100/50 to-pink-100/50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-full translate-y-10 -translate-x-10 group-hover:scale-110 transition-transform duration-500"></div>
+                            
+                            <div className="relative z-10">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-3">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full animate-pulse"></div>
+                                      <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                                        {planner.title}
+                                      </h3>
+                                    </div>
+                                    <Badge 
+                                      variant="secondary"
+                                      className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-700 dark:text-blue-300 border-0 font-medium px-3 py-1"
+                                    >
+                                      {planner.assignmentType || "essay"}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-slate-600 dark:text-slate-400 mb-4 leading-relaxed line-clamp-2">
+                                    {planner.topic}
+                                  </p>
+                                  
+                                  {/* Urgency Indicator */}
+                                  <div className="mb-4">
+                                    <UrgencyIndicator 
+                                      dueDate={planner.dueDate}
+                                      assignmentTitle={planner.title}
+                                      progress={progress}
+                                      variant="compact"
+                                    />
+                                  </div>
+                                  
+                                  <div className="flex items-center gap-6">
+                                    <div className="flex items-center gap-3">
+                                      <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                                        <div 
+                                          className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-1000 ease-out"
+                                          style={{ width: `${progress}%` }}
+                                        ></div>
+                                      </div>
+                                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[3rem]">
+                                        {progress}%
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+                                      <Calendar className="h-4 w-4 mr-1" />
+                                      {new Date(planner.dueDate).toLocaleDateString()}
+                                    </div>
+                                  </div>
                                 </div>
-                                <span className="text-sm text-gray-500">
-                                  Due: {new Date(planner.dueDate).toLocaleDateString()}
-                                </span>
+                                
+                                <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-3">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={() => handleViewPlanner(planner)}
+                                    className="flex-1 sm:flex-none bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border-slate-200 dark:border-slate-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 group-hover:shadow-md transition-all duration-200"
+                                  >
+                                    <Edit className="h-4 w-4 mr-1 sm:mr-2" />
+                                    <span className="hidden sm:inline">View Details</span>
+                                    <span className="sm:hidden">View</span>
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => planner.id && handleDeletePlanner(planner.id)}
+                                    className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border-slate-200 dark:border-slate-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-600 text-red-600 hover:text-red-700 transition-all duration-200"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Button variant="outline" size="sm" onClick={() => handleViewPlanner(planner)}>
-                                <Edit className="h-4 w-4 mr-1" />
-                                View
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => planner.id && handleDeletePlanner(planner.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
                             </div>
                           </div>
                         )
@@ -394,11 +499,35 @@ export default function Dashboard() {
           {activeView === "profile" && <ProfileView />}
         </main>
 
-        {/* Right Sidebar - Fixed position, only show on dashboard */}
+        {/* Right Sidebar - Responsive, only show on dashboard */}
         {activeView === "dashboard" && (
-          <div className="fixed right-0 top-0 h-full w-80 z-10">
+          <div className={`
+            fixed right-0 top-0 h-full w-80 z-40 backdrop-blur-sm
+            transform transition-transform duration-300 ease-in-out
+            ${rightSidebarOpen ? 'translate-x-0 xl:translate-x-0' : 'translate-x-full xl:translate-x-0'}
+            hidden xl:block
+          `}>
             <RightSidebar planners={planners} />
           </div>
+        )}
+        
+        {/* Mobile Right Sidebar */}
+        {activeView === "dashboard" && rightSidebarOpen && (
+          <div className={`
+            xl:hidden fixed right-0 top-0 h-full w-80 z-40 backdrop-blur-sm
+            transform transition-transform duration-300 ease-in-out
+            ${rightSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+          `}>
+            <RightSidebar planners={planners} />
+          </div>
+        )}
+        
+        {/* Mobile Right Sidebar Overlay */}
+        {rightSidebarOpen && (
+          <div 
+            className="xl:hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-sm"
+            onClick={() => setRightSidebarOpen(false)}
+          />
         )}
       </div>
     </div>

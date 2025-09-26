@@ -295,7 +295,7 @@ export const getPlannersByUserId = (userId: string): Planner[] => {
 }
 
 // Planner count operations
-export const getPlannerCount = () => {
+export const getPlannerCount = (): number => {
   try {
     const count = localStorage.getItem(STORAGE_KEYS.PLANNER_COUNT)
     if (count) {
@@ -314,7 +314,7 @@ export const getPlannerCount = () => {
 }
 
 // Paid status operations (kept for backward compatibility)
-export const isPaidUser = () => {
+export const isPaidUser = (): boolean => {
   try {
     const status = localStorage.getItem(STORAGE_KEYS.PAID_STATUS)
     return status === "true"
@@ -324,7 +324,7 @@ export const isPaidUser = () => {
   }
 }
 
-export const setPaidStatus = (isPaid) => {
+export const setPaidStatus = (isPaid: boolean): void => {
   try {
     localStorage.setItem(STORAGE_KEYS.PAID_STATUS, isPaid.toString())
   } catch (error) {
@@ -333,7 +333,11 @@ export const setPaidStatus = (isPaid) => {
 }
 
 // Notification settings
-export const getNotificationSettings = () => {
+interface NotificationSettings {
+  enabled: boolean
+}
+
+export const getNotificationSettings = (): NotificationSettings => {
   try {
     const settings = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS)
     return settings ? JSON.parse(settings) : { enabled: false }
@@ -343,7 +347,7 @@ export const getNotificationSettings = () => {
   }
 }
 
-export const saveNotificationSettings = (settings) => {
+export const saveNotificationSettings = (settings: NotificationSettings): void => {
   try {
     localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(settings))
   } catch (error) {
@@ -352,7 +356,14 @@ export const saveNotificationSettings = (settings) => {
 }
 
 // User preferences
-export const getUserPreferences = () => {
+interface UserPreferences {
+  theme: string
+  defaultAssignmentType: string
+  showTips: boolean
+  emailReminders: boolean
+}
+
+export const getUserPreferences = (): UserPreferences => {
   try {
     const prefs = localStorage.getItem(STORAGE_KEYS.USER_PREFERENCES)
     return prefs
@@ -374,7 +385,7 @@ export const getUserPreferences = () => {
   }
 }
 
-export const saveUserPreferences = (preferences) => {
+export const saveUserPreferences = (preferences: UserPreferences): void => {
   try {
     localStorage.setItem(STORAGE_KEYS.USER_PREFERENCES, JSON.stringify(preferences))
   } catch (error) {
@@ -383,7 +394,7 @@ export const saveUserPreferences = (preferences) => {
 }
 
 // Clear all data
-export const clearAllData = () => {
+export const clearAllData = (): void => {
   try {
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)
@@ -394,9 +405,19 @@ export const clearAllData = () => {
 }
 
 // Export data for backup
-export const exportData = () => {
+interface ExportData {
+  planners: Planner[]
+  plannerCount: number
+  paidStatus: boolean
+  notifications: NotificationSettings
+  preferences: UserPreferences
+  exportDate: string
+  version: string
+}
+
+export const exportData = (): string | null => {
   try {
-    const data = {
+    const data: ExportData = {
       planners: loadPlanners(),
       plannerCount: getPlannerCount(),
       paidStatus: isPaidUser(),
@@ -413,7 +434,7 @@ export const exportData = () => {
 }
 
 // Import data from backup
-export const importData = (jsonData) => {
+export const importData = (jsonData: string): boolean => {
   try {
     const data = JSON.parse(jsonData)
 
@@ -467,7 +488,7 @@ export const syncWithFirebase = async (firebasePlanners: Planner[], userId: stri
     })
 
     // Sort by creation date (newest first)
-    mergedPlanners.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    mergedPlanners.sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime())
 
     // Save merged result to localStorage
     localStorage.setItem(FIRESTORE_STORAGE_KEY, JSON.stringify(mergedPlanners))
@@ -536,5 +557,14 @@ export const importPlanners = (jsonData: string): boolean => {
   } catch (error) {
     console.error("Error importing planners:", error)
     return false
+  }
+}
+
+// Save task completion state - added missing function
+export const saveTaskCompletionState = (plannerId: string, taskId: string, completed: boolean): void => {
+  try {
+    updateTaskCompletion(plannerId, taskId, completed)
+  } catch (error) {
+    console.error("Error saving task completion state:", error)
   }
 }

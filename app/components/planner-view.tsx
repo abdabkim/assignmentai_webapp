@@ -13,14 +13,50 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { updatePlannerInFirestore } from "../lib/firestore"
 import { exportToPDF } from "../lib/pdf-export"
 import { requestNotificationPermission, scheduleNotification } from "../lib/notifications"
-import { saveTaskCompletionState, updatePlannerLocally } from "../lib/storage"
+import { updatePlannerLocally } from "../lib/storage"
 import SmartBreakdown from "./assignment/smart-breakdown"
 import UrgencyIndicator from "./assignment/urgency-indicator"
 
-export default function PlannerView({ planner, onBack, onUpdate }) {
+interface Task {
+  id?: string
+  name: string
+  description: string
+  tip?: string | null
+  startDate: string
+  endDate: string
+  completed: boolean
+  priority?: "low" | "medium" | "high"
+  estimatedHours?: number
+}
+
+interface Planner {
+  id?: string
+  title: string
+  topic: string
+  dueDate: string
+  assignmentType?: string
+  requirements?: string
+  deliverables?: string
+  resources?: string
+  showTips?: boolean
+  tasks: Task[]
+  createdAt?: string
+  updatedAt?: string
+  userId?: string
+  progress?: number
+  wordCount?: number
+}
+
+interface PlannerViewProps {
+  planner: Planner
+  onBack: () => void
+  onUpdate: (planner: Planner) => void
+}
+
+export default function PlannerView({ planner, onBack, onUpdate }: PlannerViewProps) {
   const [localPlanner, setLocalPlanner] = useState(planner)
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
-  const [expandedTips, setExpandedTips] = useState({})
+  const [expandedTips, setExpandedTips] = useState<Record<number, boolean>>({})
   const [loading, setLoading] = useState(false)
 
   const calculateProgress = () => {
@@ -29,7 +65,7 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
     return Math.round((completed / localPlanner.tasks.length) * 100)
   }
 
-  const handleTasksGenerated = (newTasks) => {
+  const handleTasksGenerated = (newTasks: Task[]) => {
     const updatedPlanner = {
       ...localPlanner,
       tasks: newTasks,
@@ -39,7 +75,7 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
     onUpdate(updatedPlanner)
   }
 
-  const handlePlannerUpdate = async (updates) => {
+  const handlePlannerUpdate = async (updates: Partial<Planner>) => {
     const updatedPlanner = {
       ...localPlanner,
       ...updates
@@ -47,14 +83,14 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
     setLocalPlanner(updatedPlanner)
     
     try {
-      await updatePlannerInFirestore(localPlanner.id, updates)
+      await updatePlannerInFirestore(localPlanner.id!, updates)
       onUpdate(updatedPlanner)
     } catch (error) {
       console.error('Error updating planner:', error)
     }
   }
 
-  const handleTaskToggle = async (taskIndex) => {
+  const handleTaskToggle = async (taskIndex: number) => {
     if (!localPlanner.tasks || taskIndex < 0 || taskIndex >= localPlanner.tasks.length) {
       console.error("Invalid task index:", taskIndex)
       return
@@ -65,11 +101,6 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
     try {
       const task = localPlanner.tasks[taskIndex]
       const newCompletedState = !task.completed
-      
-      // Save task completion state to persistent storage
-      if (task.id && localPlanner.id) {
-        saveTaskCompletionState(localPlanner.id, task.id, newCompletedState)
-      }
       
       const updatedTasks = localPlanner.tasks.map((t, index) =>
         index === taskIndex ? { ...t, completed: newCompletedState } : t,
@@ -87,14 +118,14 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
       setLocalPlanner(updatedPlanner)
       
       // Update local storage
-      updatePlannerLocally(localPlanner.id, {
+      updatePlannerLocally(localPlanner.id!, {
         tasks: updatedTasks,
         progress,
       })
 
       // Try to update in Firestore
       try {
-        await updatePlannerInFirestore(localPlanner.id, {
+        await updatePlannerInFirestore(localPlanner.id!, {
           tasks: updatedTasks,
           progress,
         })
@@ -120,7 +151,7 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
     }
   }
 
-  const handleDateChange = async (taskIndex, field, value) => {
+  const handleDateChange = async (taskIndex: number, field: keyof Task, value: string) => {
     if (!localPlanner.tasks || taskIndex < 0 || taskIndex >= localPlanner.tasks.length) {
       return
     }
@@ -137,7 +168,7 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
 
       setLocalPlanner(updatedPlanner)
 
-      await updatePlannerInFirestore(localPlanner.id, { tasks: updatedTasks })
+      await updatePlannerInFirestore(localPlanner.id!, { tasks: updatedTasks })
       onUpdate(updatedPlanner)
     } catch (error) {
       console.error("Error updating task date:", error)
@@ -171,12 +202,12 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
   const getDaysUntilDue = () => {
     const today = new Date()
     const due = new Date(localPlanner.dueDate)
-    const diffTime = due - today
+    const diffTime = due.getTime() - today.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays
   }
 
-  const toggleTipExpansion = (taskIndex) => {
+  const toggleTipExpansion = (taskIndex: number) => {
     setExpandedTips((prev) => ({
       ...prev,
       [taskIndex]: !prev[taskIndex],
@@ -184,8 +215,8 @@ export default function PlannerView({ planner, onBack, onUpdate }) {
   }
 
   // Format description as list items
-  const formatDescription = (description) => {
-    if (!description) return ""
+  const formatDescription = (description: string) => {
+    if (!description) return []
 
     // Split by bullet points and format as HTML list
     const items = description.split("\n").filter((item) => item.trim())

@@ -195,7 +195,7 @@ export default function DailyMicroTips() {
     <Card className="w-full">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg">
               <Lightbulb className="h-5 w-5 text-white" />
             </div>

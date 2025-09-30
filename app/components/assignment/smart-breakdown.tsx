@@ -67,7 +67,7 @@ export default function SmartBreakdown({ planner, onTasksGenerated, onPlannerUpd
   }
 
   const getAssignmentTypeLabel = (type: string) => {
-    const labels = {
+    const labels: Record<string, { label: string; icon: string; color: string }> = {
       essay: { label: 'Essay Writing', icon: '📝', color: 'bg-blue-500' },
       research: { label: 'Research Project', icon: '🔬', color: 'bg-purple-500' },
       presentation: { label: 'Presentation', icon: '📊', color: 'bg-green-500' },

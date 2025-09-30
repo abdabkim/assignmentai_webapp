@@ -33,6 +33,7 @@ const STORAGE_KEYS = {
   PAID_STATUS: "paid_status",
   NOTIFICATIONS: "notification_settings",
   USER_PREFERENCES: "user_preferences",
+  DELETION_COUNT: "deletion_count",
 }
 
 const LOCAL_STORAGE_KEY = "essay-planners"
@@ -96,14 +97,24 @@ export const updatePlannerLocally = (id: string, updates: Partial<Planner>): voi
   }
 }
 
-export const deletePlannerLocally = (id: string): void => {
+export const deletePlannerLocally = (id: string, isPremium: boolean = false): void => {
   try {
+    // Check deletion count for free users
+    if (!isPremium) {
+      const deletionCount = getDeletionCount()
+      if (deletionCount >= 1) {
+        throw new Error("Free accounts are limited to 1 deletion. Upgrade to premium for unlimited deletions.")
+      }
+      // Increment deletion count
+      incrementDeletionCount()
+    }
+
     const planners = getPlanners()
     const filtered = planners.filter((p) => p.id !== id)
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filtered))
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting planner locally:", error)
-    throw new Error("Failed to delete planner locally")
+    throw error
   }
 }
 
@@ -557,6 +568,34 @@ export const importPlanners = (jsonData: string): boolean => {
   } catch (error) {
     console.error("Error importing planners:", error)
     return false
+  }
+}
+
+// Deletion count operations
+export const getDeletionCount = (): number => {
+  try {
+    const count = localStorage.getItem(STORAGE_KEYS.DELETION_COUNT)
+    return count ? Number.parseInt(count, 10) : 0
+  } catch (error) {
+    console.error("Error getting deletion count:", error)
+    return 0
+  }
+}
+
+export const incrementDeletionCount = (): void => {
+  try {
+    const currentCount = getDeletionCount()
+    localStorage.setItem(STORAGE_KEYS.DELETION_COUNT, (currentCount + 1).toString())
+  } catch (error) {
+    console.error("Error incrementing deletion count:", error)
+  }
+}
+
+export const resetDeletionCount = (): void => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.DELETION_COUNT, "0")
+  } catch (error) {
+    console.error("Error resetting deletion count:", error)
   }
 }
 

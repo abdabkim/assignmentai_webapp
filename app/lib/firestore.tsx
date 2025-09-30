@@ -158,13 +158,43 @@ export const updatePlannerInFirestore = async (plannerId: string, updates: Parti
 }
 
 // Delete planner from Firestore
-export const deletePlannerFromFirestore = async (plannerId: string): Promise<void> => {
+export const deletePlannerFromFirestore = async (plannerId: string, userId: string, isPremium: boolean = false): Promise<void> => {
   try {
     if (!plannerId) {
       throw new Error("Planner ID is required")
     }
 
+    // Check deletion count for free users
+    if (!isPremium) {
+      const userDoc = await getDoc(doc(db, "users", userId))
+      if (userDoc.exists()) {
+        const userData = userDoc.data()
+        const deletionCount = userData.deletionCount || 0
+        
+        if (deletionCount >= 1) {
+          throw new Error("Free accounts are limited to 1 deletion. Upgrade to premium for unlimited deletions.")
+        }
+      }
+    }
+
     await deleteDoc(doc(db, "planners", plannerId))
+
+    // Increment deletion count for free users
+    if (!isPremium) {
+      try {
+        const userRef = doc(db, "users", userId)
+        const userDoc = await getDoc(userRef)
+        if (userDoc.exists()) {
+          const currentCount = userDoc.data().deletionCount || 0
+          await updateDoc(userRef, {
+            deletionCount: currentCount + 1,
+            updatedAt: serverTimestamp()
+          })
+        }
+      } catch (updateError) {
+        console.error("Error updating deletion count:", updateError)
+      }
+    }
   } catch (error: any) {
     console.error("Error deleting planner from Firestore:", error)
 
@@ -176,7 +206,7 @@ export const deletePlannerFromFirestore = async (plannerId: string): Promise<voi
       throw new Error("Planner not found")
     }
 
-    throw new Error(`Failed to delete planner: ${error.message}`)
+    throw error
   }
 }
 

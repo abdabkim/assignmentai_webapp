@@ -187,7 +187,7 @@ export default function LandingPage(): JSX.Element {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-12 sm:py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-100/50 via-blue-100/50 to-cyan-100/50"></div>
         <div className="absolute top-10 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
         <div
@@ -205,17 +205,17 @@ export default function LandingPage(): JSX.Element {
               <Sparkles className="w-4 h-4 mr-2" />
               AI-Powered Assignment Planning
             </div>
-            <h1 className="text-4xl md:text-7xl font-bold text-gray-900 mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
               Plan Your Assignments with
               <span className="block bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent animate-gradient">
                 AI Intelligence
               </span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4">
               Transform complex assignments into manageable, step-by-step plans. Perfect for essays, coding projects,
               presentations, and research papers with intelligent AI assistance.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-6 sm:mb-8 px-4">
               <Link href="/signup">
                 <Button
                   size="lg"
@@ -243,26 +243,26 @@ export default function LandingPage(): JSX.Element {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-white/50 backdrop-blur-sm">
+      <section id="features" className="py-12 sm:py-16 md:py-20 bg-white/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-slide-up">
             <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full text-sm font-medium text-purple-700 mb-4">
               <Zap className="w-4 h-4 mr-2" />
               Powerful Features
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 px-4">
               Everything You Need to
               <span className="block bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Succeed
               </span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
               Our AI-powered platform provides all the tools you need to plan, track, and complete your assignments
               successfully.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 px-4">
             {features.map((feature: Feature, index: number) => {
               const Icon = feature.icon
               return (
@@ -271,7 +271,7 @@ export default function LandingPage(): JSX.Element {
                   className="group hover-lift bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 animate-scale-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <CardContent className="p-6 text-center">
+                  <CardContent className="p-4 sm:p-6 text-center">
                     <div
                       className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}
                     >
@@ -288,30 +288,30 @@ export default function LandingPage(): JSX.Element {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-gradient-to-br from-purple-50 to-blue-50">
+      <section id="testimonials" className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-purple-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-slide-up">
             <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full text-sm font-medium text-purple-700 mb-4">
               <Users className="w-4 h-4 mr-2" />
               Student Success Stories
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 px-4">
               Loved by Students
               <span className="block bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Everywhere
               </span>
             </h2>
-            <p className="text-xl text-gray-600">See what students are saying about EssayPlanner AI</p>
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 px-4">See what students are saying about EssayPlanner AI</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 px-4">
             {testimonials.map((testimonial: Testimonial, index: number) => (
               <Card
                 key={index}
                 className="hover-lift bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 animate-scale-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, i: number) => (
                       <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
@@ -337,26 +337,26 @@ export default function LandingPage(): JSX.Element {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-white/50 backdrop-blur-sm">
+      <section id="pricing" className="py-12 sm:py-16 md:py-20 bg-white/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-slide-up">
             <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full text-sm font-medium text-purple-700 mb-4">
               <Target className="w-4 h-4 mr-2" />
               Simple Pricing
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 px-4">
               Choose Your
               <span className="block bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Perfect Plan
               </span>
             </h2>
-            <p className="text-xl text-gray-600">Start free, upgrade when you need more</p>
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 px-4">Start free, upgrade when you need more</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 max-w-4xl mx-auto px-4">
             {/* Free Plan */}
             <Card className="border-2 border-gray-200 hover-lift bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-all duration-300">
-              <CardContent className="p-8">
+              <CardContent className="p-4 sm:p-6 md:p-8">
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">Free</h3>
                   <div className="flex items-center justify-center mb-4">
@@ -395,12 +395,12 @@ export default function LandingPage(): JSX.Element {
 
             {/* Premium Plan */}
             <Card className="border-2 border-purple-500 relative hover-lift bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 animate-pulse-glow">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg">
+              <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2">
+                <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium shadow-lg">
                   Most Popular
                 </span>
               </div>
-              <CardContent className="p-8">
+              <CardContent className="p-4 sm:p-6 md:p-8 pt-6 sm:pt-8">
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">Premium</h3>
                   <div className="flex items-center justify-center mb-4">
@@ -445,7 +445,7 @@ export default function LandingPage(): JSX.Element {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600 relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="absolute top-0 left-0 w-full h-full">
           <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full animate-float"></div>
@@ -459,11 +459,11 @@ export default function LandingPage(): JSX.Element {
           ></div>
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 px-4">
             Ready to Transform Your
             <span className="block">Study Habits?</span>
           </h2>
-          <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-purple-100 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
             Join thousands of students who are already using EssayPlanner AI to stay organized and succeed in their
             studies.
           </p>

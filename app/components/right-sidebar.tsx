@@ -6,11 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
-export default function RightSidebar({ planners }) {
+interface RightSidebarProps {
+  planners: any[]
+}
+
+export default function RightSidebar({ planners }: RightSidebarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(new Date())
 
-  const getTasksForDate = (date) => {
+  const getTasksForDate = (date: Date) => {
     const dateStr = date.toISOString().split("T")[0]
     const tasksForDate = []
 
@@ -28,11 +32,11 @@ export default function RightSidebar({ planners }) {
     return tasksForDate
   }
 
-  const getDaysInMonth = (date) => {
+  const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
   }
 
-  const getFirstDayOfMonth = (date) => {
+  const getFirstDayOfMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
   }
 
@@ -43,7 +47,7 @@ export default function RightSidebar({ planners }) {
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
-  const navigateMonth = (direction) => {
+  const navigateMonth = (direction: number) => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev)
       newDate.setMonth(prev.getMonth() + direction)

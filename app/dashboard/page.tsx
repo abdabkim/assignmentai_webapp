@@ -124,7 +124,7 @@ export default function Dashboard() {
   }
 
   const handleDeletePlanner = async (plannerId: string) => {
-    if (!plannerId) return
+    if (!plannerId || !user) return
 
     // Check if user is premium
     const isPremium = userData?.isPremium || userData?.isEnterprise || false
@@ -132,7 +132,7 @@ export default function Dashboard() {
     try {
       // Try to delete from Firestore first
       try {
-        await deletePlannerFromFirestore(plannerId)
+        await deletePlannerFromFirestore(plannerId, user.uid, isPremium)
       } catch (error: any) {
         console.error("Error deleting from Firestore:", error)
 
@@ -223,9 +223,22 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 hover:bg-white dark:hover:bg-slate-800 transition-all duration-200"
+      >
+        {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </button>
+      
       <div className="flex">
-        {/* Left Sidebar - Fixed */}
-        <div className="fixed left-0 top-0 h-full w-64 z-10 backdrop-blur-sm">
+        {/* Left Sidebar - Responsive */}
+        <div className={`
+          fixed left-0 top-0 h-full w-64 z-40 backdrop-blur-sm
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 lg:relative lg:transform-none
+        `}>
           <Sidebar 
             currentView={activeView} 
             onViewChange={setActiveView}
@@ -235,9 +248,25 @@ export default function Dashboard() {
             userData={userData}
           />
         </div>
+        
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="lg:hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-sm"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-        {/* Main Content - Adjusted margins */}
-        <main className={`flex-1 ml-64 ${!isFullPageView ? 'mr-80' : ''} p-8 animate-in fade-in-50 duration-500`}>
+        {/* Main Content - Responsive margins */}
+        <main className={`
+          flex-1 
+          ${/* Mobile: full width with padding for menu button */ ''}
+          p-4 pt-20 lg:pt-8 lg:p-8
+          ${/* Desktop: margins for sidebars */ ''}
+          lg:ml-0
+          ${!isFullPageView ? 'xl:mr-80' : ''}
+          animate-in fade-in-50 duration-500
+        `}>
           {error && (
             <Alert className="mb-6 bg-red-50 border-red-200 animate-in slide-in-from-top-3 duration-300">
               <AlertDescription className="text-red-700">{error}</AlertDescription>
@@ -499,31 +528,32 @@ export default function Dashboard() {
           {activeView === "profile" && <ProfileView />}
         </main>
 
-        {/* Right Sidebar - Responsive, only show on dashboard */}
+        {/* Right Sidebar - Desktop Only */}
         {activeView === "dashboard" && (
-          <div className={`
-            fixed right-0 top-0 h-full w-80 z-40 backdrop-blur-sm
-            transform transition-transform duration-300 ease-in-out
-            ${rightSidebarOpen ? 'translate-x-0 xl:translate-x-0' : 'translate-x-full xl:translate-x-0'}
-            hidden xl:block
-          `}>
+          <div className="hidden xl:block fixed right-0 top-0 h-full w-80 z-10 backdrop-blur-sm">
             <RightSidebar planners={planners} />
           </div>
         )}
         
+        {/* Mobile Right Sidebar Toggle Button */}
+        {activeView === "dashboard" && (
+          <button
+            onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
+            className="xl:hidden fixed top-4 right-4 z-50 p-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 hover:bg-white dark:hover:bg-slate-800 transition-all duration-200"
+          >
+            <BarChart3 className="h-5 w-5" />
+          </button>
+        )}
+        
         {/* Mobile Right Sidebar */}
         {activeView === "dashboard" && rightSidebarOpen && (
-          <div className={`
-            xl:hidden fixed right-0 top-0 h-full w-80 z-40 backdrop-blur-sm
-            transform transition-transform duration-300 ease-in-out
-            ${rightSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
-          `}>
+          <div className="xl:hidden fixed right-0 top-0 h-full w-80 z-40 backdrop-blur-sm transform transition-transform duration-300 ease-in-out">
             <RightSidebar planners={planners} />
           </div>
         )}
         
         {/* Mobile Right Sidebar Overlay */}
-        {rightSidebarOpen && (
+        {activeView === "dashboard" && rightSidebarOpen && (
           <div 
             className="xl:hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-sm"
             onClick={() => setRightSidebarOpen(false)}

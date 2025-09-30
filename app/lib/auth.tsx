@@ -25,6 +25,7 @@ export interface UserData {
   updatedAt: string
   lastLoginAt: string
   plannerCount: number
+  deletionCount: number // Track how many planners the user has deleted
   subscriptionId?: string
   subscriptionStatus?: string
   premiumExpiresAt?: string
@@ -78,6 +79,7 @@ export const signUp = async (email: string, password: string, fullName: string) 
       updatedAt: new Date().toISOString(),
       lastLoginAt: new Date().toISOString(),
       plannerCount: 0,
+      deletionCount: 0,
     }
 
     await setDoc(doc(db, "users", user.uid), userData)
@@ -161,6 +163,7 @@ export const signInWithGoogle = async () => {
         updatedAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
         plannerCount: 0,
+        deletionCount: 0,
       }
 
       await setDoc(userDocRef, userData)
@@ -288,6 +291,7 @@ export const getUserData = async (uid: string): Promise<UserData | null> => {
         updatedAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
         plannerCount: 0,
+        deletionCount: 0,
       }
       
       try {
@@ -313,6 +317,7 @@ export const getUserData = async (uid: string): Promise<UserData | null> => {
       updatedAt: new Date().toISOString(),
       lastLoginAt: new Date().toISOString(),
       plannerCount: 0,
+      deletionCount: 0,
     }
   }
 }

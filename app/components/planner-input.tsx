@@ -129,7 +129,7 @@ export default function PlannerInput({ onBack, onCancel, onPlannerCreated }: Pla
   }, [user])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+    e.preventDefault()
 
     if (!formData.title || !formData.topic || !formData.dueDate || !formData.assignmentType) {
       alert("Please fill in all required fields")
@@ -185,19 +185,21 @@ export default function PlannerInput({ onBack, onCancel, onPlannerCreated }: Pla
     } catch (error) {
       console.error("Error generating plan:", error)
 
-      if (error.message.includes("API key not configured") || error.message.includes("Gemini AI is not configured")) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+
+      if (errorMessage.includes("API key not configured") || errorMessage.includes("Gemini AI is not configured")) {
         alert("AI service is not configured. Please check that your NEXT_PUBLIC_GEMINI_API_KEY is set in your .env.local file. You can get a free API key from https://makersuite.google.com/app/apikey")
-      } else if (error.message.includes("API request failed")) {
+      } else if (errorMessage.includes("API request failed")) {
         alert("Unable to connect to AI service. Please check your internet connection and try again.")
       } else {
-        alert(`Failed to generate plan: ${error.message}`)
+        alert(`Failed to generate plan: ${errorMessage}`)
       }
     } finally {
       setIsGenerating(false)
     }
   }
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 

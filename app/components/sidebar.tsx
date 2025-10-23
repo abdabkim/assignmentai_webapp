@@ -23,7 +23,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { logOut } from "../lib/auth"
 import { useRouter } from "next/navigation"
 import type { UserData } from "../lib/auth"
-import type { PlannerData } from "../lib/firestore"
+import type { Planner } from "../lib/storage"
 
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -47,8 +47,8 @@ interface SidebarProps {
   currentView: string
   onViewChange: (view: string) => void
   onCreatePlanner: () => void
-  planners: PlannerData[]
-  onViewPlanner: (planner: PlannerData) => void
+  planners: Planner[]
+  onViewPlanner: (planner: Planner) => void
   userData: UserData | null
   onClose?: () => void
   isMobile?: boolean
@@ -95,7 +95,7 @@ export default function Sidebar({
     }
   }
 
-  const handleViewPlanner = (planner: PlannerData) => {
+  const handleViewPlanner = (planner: Planner) => {
     onViewPlanner(planner)
     if (isMobile && onClose) {
       onClose()

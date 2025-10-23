@@ -12,7 +12,11 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "../contexts/auth-context"
 import { getNotificationSettings, saveNotificationSettings, clearAllData } from "../lib/storage"
 
-export default function SettingsView({ onBack }) {
+interface SettingsViewProps {
+  // No props needed
+}
+
+export default function SettingsView() {
   const [notificationSettings, setNotificationSettings] = useState({ enabled: false })
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
@@ -24,7 +28,7 @@ export default function SettingsView({ onBack }) {
     setNotificationSettings(getNotificationSettings())
   }, [])
 
-  const handleNotificationToggle = (enabled) => {
+  const handleNotificationToggle = (enabled: boolean) => {
     const newSettings = { ...notificationSettings, enabled }
     setNotificationSettings(newSettings)
     saveNotificationSettings(newSettings)
@@ -39,7 +43,6 @@ export default function SettingsView({ onBack }) {
     if (confirmed) {
       clearAllData()
       alert("All data has been cleared.")
-      onBack()
     }
   }
 

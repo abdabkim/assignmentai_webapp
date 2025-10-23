@@ -19,7 +19,15 @@ export interface UrgencyMetrics {
 }
 
 // Assignment type configurations
-const ASSIGNMENT_CONFIGS = {
+const ASSIGNMENT_CONFIGS: Record<string, {
+  baseComplexity: number
+  estimatedHoursPerPage?: number
+  estimatedHoursPerSource?: number
+  estimatedHoursPerSlide?: number
+  estimatedHoursPerFeature?: number
+  estimatedHoursPerConcept?: number
+  phases: { name: string; percentage: number; minHours: number }[]
+}> = {
   essay: {
     baseComplexity: 6,
     estimatedHoursPerPage: 2,

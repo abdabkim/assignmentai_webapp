@@ -5,9 +5,10 @@ import { MessageCircle, ChevronLeft, ChevronRight } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import type { Planner } from "../lib/storage"
 
 interface RightSidebarProps {
-  planners: any[]
+  planners: Planner[]
 }
 
 export default function RightSidebar({ planners }: RightSidebarProps) {
@@ -16,7 +17,13 @@ export default function RightSidebar({ planners }: RightSidebarProps) {
 
   const getTasksForDate = (date: Date) => {
     const dateStr = date.toISOString().split("T")[0]
-    const tasksForDate = []
+    const tasksForDate: Array<{
+      name: string
+      startDate: string
+      endDate: string
+      completed: boolean
+      plannerTitle: string
+    }> = []
 
     planners.forEach((planner) => {
       planner.tasks?.forEach((task) => {
@@ -32,11 +39,11 @@ export default function RightSidebar({ planners }: RightSidebarProps) {
     return tasksForDate
   }
 
-  const getDaysInMonth = (date: Date) => {
+  const getDaysInMonth = (date: Date): number => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
   }
 
-  const getFirstDayOfMonth = (date: Date) => {
+  const getFirstDayOfMonth = (date: Date): number => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
   }
 
@@ -58,7 +65,7 @@ export default function RightSidebar({ planners }: RightSidebarProps) {
   const renderCalendar = () => {
     const daysInMonth = getDaysInMonth(currentDate)
     const firstDay = getFirstDayOfMonth(currentDate)
-    const days = []
+    const days: JSX.Element[] = []
     const today = new Date()
 
     // Empty cells for days before the first day of the month
@@ -98,11 +105,16 @@ export default function RightSidebar({ planners }: RightSidebarProps) {
   }
 
   const getRecentActivity = () => {
-    const activities = []
+    const activities: Array<{
+      id: string
+      type: string
+      message: string
+      time: string
+    }> = []
 
     // Add recent planner creations
     planners.slice(0, 3).forEach((planner) => {
-      if (planner.createdAt) {
+      if (planner.createdAt && planner.id) {
         activities.push({
           id: `created-${planner.id}`,
           type: "created",

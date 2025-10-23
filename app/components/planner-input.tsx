@@ -208,6 +208,9 @@ export default function PlannerInput({ onBack, onCancel, onPlannerCreated }: Pla
   // Set minimum date to today
   const today = new Date().toISOString().split("T")[0]
 
+  // Calculate if button should be disabled
+  const isButtonDisabled = isGenerating || (!!user && !userData?.isPremium && plannerCount >= 3)
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -421,7 +424,7 @@ export default function PlannerInput({ onBack, onCancel, onPlannerCreated }: Pla
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                disabled={isGenerating || (user && !userData?.isPremium && plannerCount >= 3)}
+                disabled={isButtonDisabled}
               >
                 {isGenerating ? (
                   <>

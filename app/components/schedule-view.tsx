@@ -5,14 +5,13 @@ import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Clock } from "lucide-re
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import type { PlannerData } from "../lib/firestore"
+import type { Planner } from "../lib/storage"
 
 interface ScheduleViewProps {
-  onBack: () => void
-  planners: PlannerData[]
+  planners: Planner[]
 }
 
-export default function ScheduleView({ onBack, planners }: ScheduleViewProps) {
+export default function ScheduleView({ planners }: ScheduleViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<"month" | "week">("month")
 
@@ -135,15 +134,9 @@ export default function ScheduleView({ onBack, planners }: ScheduleViewProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Schedule</h1>
-            <p className="text-gray-600 dark:text-gray-300">View your assignment timeline</p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Schedule</h1>
+          <p className="text-gray-600 dark:text-gray-300">View your assignment timeline</p>
         </div>
 
         <Card>

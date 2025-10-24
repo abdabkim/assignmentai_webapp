@@ -17,6 +17,7 @@ import {
   LogOut,
   Target,
   X,
+  Crown,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -27,6 +28,8 @@ import type { Planner } from "../lib/storage"
 
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "tools", label: "Student Tools", icon: Target },
+  { id: "premium", label: "Premium Features", icon: Crown },
   { id: "productivity", label: "Productivity", icon: Target },
   { id: "insight", label: "Insight", icon: BarChart3 },
   { id: "schedule", label: "Schedule", icon: Calendar },
@@ -108,7 +111,7 @@ export default function Sidebar({
   const displayInitial = displayName.charAt(0).toUpperCase()
 
   return (
-    <div className="h-full w-full sm:w-64 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-r border-slate-200/50 dark:border-slate-700/50 flex flex-col overflow-hidden shadow-2xl">
+    <div className="h-full w-full sm:w-64 bg-white dark:bg-slate-900 flex flex-col overflow-hidden border-r border-slate-200 dark:border-slate-800">
       {/* Mobile Close Button */}
       {isMobile && (
         <div className="flex justify-end p-4 sm:hidden">
@@ -124,33 +127,33 @@ export default function Sidebar({
       )}
 
       {/* User Profile */}
-      <div className="p-4 sm:p-6 border-b border-slate-200/50 dark:border-slate-700/50 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/20 dark:to-indigo-900/20">
+      <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-800">
         <div className="relative">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setShowUserMenu(!showUserMenu)}>
             <div className="relative">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:bg-blue-700 transition-all duration-200">
                 <span className="text-base sm:text-lg font-bold text-white">{displayInitial}</span>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-400 border-2 border-white dark:border-slate-900 rounded-full animate-pulse"></div>
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">{displayName}</h3>
+              <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white truncate">{displayName}</h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">Free Account</p>
             </div>
-            <ChevronDown className={`h-4 w-4 text-slate-400 transition-all duration-200 flex-shrink-0 ${showUserMenu ? "rotate-180 text-blue-500" : ""}`} />
+            <ChevronDown className={`h-4 w-4 text-slate-400 dark:text-slate-500 transition-all duration-200 flex-shrink-0 ${showUserMenu ? "rotate-180" : ""}`} />
           </div>
 
           {showUserMenu && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 rounded-xl shadow-2xl z-50 overflow-hidden">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden">
               <button
                 onClick={() => {
                   handleViewChange("profile")
                   setShowUserMenu(false)
                 }}
-                className="w-full px-4 py-3 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-3 transition-all duration-150"
+                className="w-full px-4 py-3 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 flex items-center gap-3 transition-all duration-150"
               >
-                <div className="p-1 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                  <User className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                <div className="p-1 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                  <User className="h-3 w-3 text-purple-600 dark:text-purple-400" />
                 </div>
                 View Profile
               </button>
@@ -182,21 +185,15 @@ export default function Sidebar({
                 variant="ghost"
                 className={`w-full justify-start gap-2 sm:gap-3 h-10 sm:h-11 transition-all duration-200 group text-sm sm:text-base ${
                   isActive
-                    ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-indigo-700"
-                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 hover:text-blue-600 dark:hover:text-blue-400"
+                    ? "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300"
+                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
                 onClick={() => handleViewChange(item.id)}
               >
-                <div className={`p-1 sm:p-1.5 rounded-lg transition-all duration-200 ${
-                  isActive 
-                    ? "bg-white/20" 
-                    : "bg-slate-100 dark:bg-slate-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30"
-                }`}>
-                  <Icon className="h-4 w-4" />
-                </div>
+                <Icon className="h-4 w-4" />
                 <span className="flex-1 text-left font-medium">{item.label}</span>
                 {isActive && (
-                  <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
                 )}
               </Button>
             )
@@ -209,16 +206,14 @@ export default function Sidebar({
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-between text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-slate-200 h-9 sm:h-10 transition-all duration-200 text-sm sm:text-base"
+                className="w-full justify-between text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 h-9 sm:h-10 transition-all duration-200 text-sm sm:text-base"
               >
                 <div className="flex items-center gap-2">
-                  <div className="p-1 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-lg">
-                    <BookOpen className="h-3 w-3 text-purple-600 dark:text-purple-400" />
-                  </div>
+                  <BookOpen className="h-4 w-4" />
                   <span className="font-medium">Projects</span>
                 </div>
                 <ChevronDown className={`h-4 w-4 transition-all duration-200 ${
-                  projectsExpanded ? "rotate-180 text-purple-500" : ""
+                  projectsExpanded ? "rotate-180" : ""
                 }`} />
               </Button>
             </CollapsibleTrigger>
@@ -226,7 +221,7 @@ export default function Sidebar({
               {/* Create New Project Button */}
               <Button
                 variant="ghost"
-                className="w-full justify-start gap-2 sm:gap-3 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 dark:hover:from-green-900/20 dark:hover:to-emerald-900/20 hover:text-green-700 dark:hover:text-green-400 h-9 sm:h-10 transition-all duration-200 group text-sm sm:text-base"
+                className="w-full justify-start gap-2 sm:gap-3 text-slate-700 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-400 h-9 sm:h-10 transition-all duration-200 group text-sm sm:text-base"
                 onClick={handleCreatePlanner}
               >
                 <div className="p-1 sm:p-1.5 bg-green-100 dark:bg-green-900/50 rounded-lg group-hover:bg-green-200 dark:group-hover:bg-green-800/50 transition-colors">

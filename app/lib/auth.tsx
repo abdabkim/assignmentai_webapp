@@ -37,24 +37,66 @@ export const validateEmail = (email: string): boolean => {
   return emailRegex.test(email)
 }
 
-// Password validation function
-export const validatePassword = (password: string): boolean => {
-  // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/
-  return passwordRegex.test(password)
+// Password validation function with detailed requirements
+export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = []
+  
+  if (password.length < 8) {
+    errors.push("Password must be at least 8 characters long")
+  }
+  if (!/[A-Z]/.test(password)) {
+    errors.push("Password must contain at least one uppercase letter")
+  }
+  if (!/[a-z]/.test(password)) {
+    errors.push("Password must contain at least one lowercase letter")
+  }
+  if (!/\d/.test(password)) {
+    errors.push("Password must contain at least one number")
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    errors.push("Password must contain at least one special character (!@#$%^&*...)")
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  }
 }
 
-export const signUp = async (email: string, password: string, fullName: string) => {
+// Username validation function
+export const validateUsername = (username: string): { isValid: boolean; error: string } => {
+  if (!username.trim()) {
+    return { isValid: false, error: "Username is required" }
+  }
+  if (username.length < 3) {
+    return { isValid: false, error: "Username must be at least 3 characters" }
+  }
+  if (username.length > 20) {
+    return { isValid: false, error: "Username must be 20 characters or less" }
+  }
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+    return { isValid: false, error: "Username can only contain letters, numbers, and underscores" }
+  }
+  return { isValid: true, error: "" }
+}
+
+export const signUp = async (email: string, password: string, fullName: string, username: string) => {
   if (!validateEmail(email)) {
     throw new Error("Please enter a valid email address")
   }
 
-  if (!validatePassword(password)) {
-    throw new Error("Password must be at least 8 characters with uppercase, lowercase, and number")
+  const passwordValidation = validatePassword(password)
+  if (!passwordValidation.isValid) {
+    throw new Error(`Password requirements not met: ${passwordValidation.errors.join(", ")}`)
   }
 
   if (!fullName.trim()) {
     throw new Error("Please enter your full name")
+  }
+
+  const usernameValidation = validateUsername(username)
+  if (!usernameValidation.isValid) {
+    throw new Error(usernameValidation.error)
   }
 
   try {
@@ -72,7 +114,7 @@ export const signUp = async (email: string, password: string, fullName: string) 
       email: user.email!,
       displayName: fullName,
       fullName: fullName,
-      username: fullName.toLowerCase().replace(/\s+/g, ""),
+      username: username,
       isPremium: false,
       isEnterprise: false,
       createdAt: new Date().toISOString(),

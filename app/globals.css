@@ -60,11 +60,42 @@
 }
 
 @layer base {
+  :root {
+    --font-size-base: 16px;
+  }
+
+  [data-font-size="small"] {
+    --font-size-base: 14px;
+  }
+
+  [data-font-size="medium"] {
+    --font-size-base: 16px;
+  }
+
+  [data-font-size="large"] {
+    --font-size-base: 18px;
+  }
+
+  [data-font-size="extra-large"] {
+    --font-size-base: 20px;
+  }
+
+  [data-high-contrast="true"] {
+    --contrast-multiplier: 1.5;
+  }
+
+  [data-reduced-motion="true"] * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    font-size: var(--font-size-base, 16px);
   }
 }
 

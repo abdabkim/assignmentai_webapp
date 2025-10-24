@@ -212,7 +212,7 @@ export default function PlannerInput({ onBack, onCancel, onPlannerCreated }: Pla
   const isButtonDisabled = isGenerating || (!!user && !userData?.isPremium && plannerCount >= 3)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -227,7 +227,7 @@ export default function PlannerInput({ onBack, onCancel, onPlannerCreated }: Pla
             </p>
           </div>
           {userData?.isPremium && (
-            <Badge className="bg-gradient-to-r from-purple-500 to-blue-500 text-white">
+            <Badge className="bg-purple-600 text-white">
               <Crown className="h-3 w-3 mr-1" />
               Premium
             </Badge>
@@ -404,7 +404,7 @@ export default function PlannerInput({ onBack, onCancel, onPlannerCreated }: Pla
                   <Label htmlFor="showTips" className="text-base font-medium dark:text-white">
                     Include Helpful Tips
                     {userData?.isPremium && (
-                      <Badge className="ml-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs">
+                      <Badge className="ml-2 bg-purple-600 text-white text-xs">
                         Enhanced
                       </Badge>
                     )}
@@ -423,7 +423,7 @@ export default function PlannerInput({ onBack, onCancel, onPlannerCreated }: Pla
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                className="w-full bg-blue-600 hover:bg-blue-700"
                 disabled={isButtonDisabled}
               >
                 {isGenerating ? (

@@ -195,7 +195,8 @@ export function generateSmartBreakdown(planner: Planner): AssignmentBreakdown {
     planner.deliverables || ''
   )
   
-  const config = ASSIGNMENT_CONFIGS[planner.assignmentType] || ASSIGNMENT_CONFIGS.essay
+  const assignmentType = planner.assignmentType || 'essay'
+  const config = ASSIGNMENT_CONFIGS[assignmentType as keyof typeof ASSIGNMENT_CONFIGS] || ASSIGNMENT_CONFIGS.essay
   
   // Calculate total estimated hours
   let totalHours = complexity * 3 // Base calculation
@@ -203,7 +204,7 @@ export function generateSmartBreakdown(planner: Planner): AssignmentBreakdown {
   // Adjust based on assignment type specifics
   if (planner.assignmentType === 'essay') {
     const wordCount = extractWordCount(planner.requirements || planner.deliverables || '')
-    if (wordCount) {
+    if (wordCount && config.estimatedHoursPerPage) {
       totalHours = Math.max(totalHours, (wordCount / 500) * config.estimatedHoursPerPage)
     }
   }
@@ -352,8 +353,8 @@ function generatePhaseDescription(phaseName: string, assignmentType: string): st
     }
   }
   
-  return descriptions[phaseName]?.[assignmentType] || 
-         descriptions[phaseName]?.essay || 
+  return (descriptions as any)[phaseName]?.[assignmentType] || 
+         (descriptions as any)[phaseName]?.essay || 
          `Complete the ${phaseName.toLowerCase()} phase of your ${assignmentType} assignment.`
 }
 
@@ -390,8 +391,8 @@ function generatePhaseTip(phaseName: string, assignmentType: string): string {
     }
   }
   
-  return tips[phaseName]?.[assignmentType] || 
-         tips[phaseName]?.essay || 
+  return (tips as any)[phaseName]?.[assignmentType] || 
+         (tips as any)[phaseName]?.essay || 
          'Stay focused and take regular breaks to maintain productivity.'
 }
 
@@ -457,7 +458,7 @@ function generateAdaptiveRecommendations(
     ]
   }
   
-  const typeSpecific = typeRecommendations[assignmentType] || typeRecommendations.essay
+  const typeSpecific = (typeRecommendations as any)[assignmentType] || typeRecommendations.essay
   recommendations.push(...typeSpecific.slice(0, 2)) // Add 2 type-specific tips
   
   // Working hours recommendation

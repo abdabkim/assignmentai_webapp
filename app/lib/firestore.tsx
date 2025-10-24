@@ -44,13 +44,13 @@ export const savePlannerToFirestore = async (userId: string, planner: Planner): 
       updatedAt: new Date().toISOString(),
     }
   } catch (error: any) {
-    console.error("Error saving planner to Firestore:", error)
+    console.warn("Firestore save failed, will use localStorage:", error.code || error.message)
 
-    if (error.code === "permission-denied") {
+    if (error.code === "permission-denied" || error.code === "unauthenticated") {
       throw new Error("permissions")
     }
 
-    throw new Error(`Failed to save planner: ${error.message}`)
+    throw new Error("permissions")
   }
 }
 
@@ -88,14 +88,8 @@ export const getUserPlanners = async (userId: string): Promise<Planner[]> => {
 
     return planners
   } catch (error: any) {
-    console.error("Error getting user planners:", error)
-
-    if (error.code === "permission-denied") {
-      console.warn("Firestore permissions not configured, falling back to localStorage")
-      return []
-    }
-
-    throw new Error(`Failed to get planners: ${error.message}`)
+    console.warn("Firestore fetch failed, using localStorage:", error.code || error.message)
+    return []
   }
 }
 
@@ -143,17 +137,8 @@ export const updatePlannerInFirestore = async (plannerId: string, updates: Parti
 
     await updateDoc(plannerRef, sanitizedUpdates)
   } catch (error: any) {
-    console.error("Error updating planner in Firestore:", error)
-
-    if (error.code === "permission-denied") {
-      throw new Error("permissions")
-    }
-
-    if (error.code === "not-found") {
-      throw new Error("Planner not found")
-    }
-
-    throw new Error(`Failed to update planner: ${error.message}`)
+    console.warn("Firestore update failed, will use localStorage:", error.code || error.message)
+    throw new Error("permissions")
   }
 }
 
@@ -192,21 +177,17 @@ export const deletePlannerFromFirestore = async (plannerId: string, userId: stri
           })
         }
       } catch (updateError) {
-        console.error("Error updating deletion count:", updateError)
+        console.warn("Failed to update deletion count, continuing:", updateError)
       }
     }
   } catch (error: any) {
-    console.error("Error deleting planner from Firestore:", error)
-
-    if (error.code === "permission-denied") {
-      throw new Error("permissions")
+    console.warn("Firestore delete failed, will use localStorage:", error.code || error.message)
+    
+    if (error.message && error.message.includes("Free accounts are limited")) {
+      throw error
     }
-
-    if (error.code === "not-found") {
-      throw new Error("Planner not found")
-    }
-
-    throw error
+    
+    throw new Error("permissions")
   }
 }
 
@@ -248,13 +229,8 @@ export const getPlannerFromFirestore = async (plannerId: string): Promise<Planne
       return null
     }
   } catch (error: any) {
-    console.error("Error getting planner from Firestore:", error)
-
-    if (error.code === "permission-denied") {
-      return null
-    }
-
-    throw new Error(`Failed to get planner: ${error.message}`)
+    console.warn("Firestore get planner failed, will use localStorage:", error.code || error.message)
+    return null
   }
 }
 
@@ -292,12 +268,7 @@ export const updateTaskCompletionInFirestore = async (
       progress,
     })
   } catch (error: any) {
-    console.error("Error updating task completion in Firestore:", error)
-
-    if (error.code === "permission-denied") {
-      throw new Error("permissions")
-    }
-
-    throw new Error(`Failed to update task: ${error.message}`)
+    console.warn("Firestore task update failed, will use localStorage:", error.code || error.message)
+    throw new Error("permissions")
   }
 }

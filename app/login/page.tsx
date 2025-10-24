@@ -112,12 +112,12 @@ export default function LoginPage() {
 
   if (showResetPassword) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-blue-50 dark:bg-gray-900 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center mb-4">
               <BookOpen className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">EssayPlanner AI</span>
+              <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">AssignmentPlanner AI</span>
             </div>
             <CardTitle className="text-2xl dark:text-white">Reset Password</CardTitle>
             <p className="text-gray-600 dark:text-gray-300">Enter your email to receive a reset link</p>
@@ -215,7 +215,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-900 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex items-center justify-between mb-4">
@@ -229,7 +229,7 @@ export default function LoginPage() {
             </Button>
             <div className="flex items-center">
               <BookOpen className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">EssayPlanner AI</span>
+              <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">AssignmentPlanner AI</span>
             </div>
             <div className="w-10"></div>
           </div>

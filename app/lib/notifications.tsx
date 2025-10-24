@@ -1,4 +1,10 @@
 // Fixed browser notification utilities
+import type { Task } from "./storage"
+
+interface Planner {
+  title: string
+  tasks?: Task[]
+}
 
 export const requestNotificationPermission = async () => {
   if (typeof window === "undefined" || !("Notification" in window)) {
@@ -23,7 +29,7 @@ export const requestNotificationPermission = async () => {
   return Notification.permission
 }
 
-export const scheduleNotification = (task, assignmentTitle) => {
+export const scheduleNotification = (task: Task, assignmentTitle: string) => {
   if (typeof window === "undefined" || !("Notification" in window) || Notification.permission !== "granted") {
     return
   }
@@ -45,7 +51,7 @@ export const scheduleNotification = (task, assignmentTitle) => {
   }
 }
 
-export const showNotification = (task, assignmentTitle) => {
+export const showNotification = (task: Task, assignmentTitle: string) => {
   if (typeof window === "undefined" || !("Notification" in window) || Notification.permission !== "granted") {
     return
   }
@@ -75,7 +81,7 @@ export const showNotification = (task, assignmentTitle) => {
   }
 }
 
-export const showDailyReminder = (planners) => {
+export const showDailyReminder = (planners: Planner[]) => {
   if (
     typeof window === "undefined" ||
     !("Notification" in window) ||
@@ -87,10 +93,10 @@ export const showDailyReminder = (planners) => {
 
   // Find tasks due today or overdue
   const today = new Date().toISOString().split("T")[0]
-  const urgentTasks = []
+  const urgentTasks: Array<{ task: Task; plannerTitle: string }> = []
 
-  planners.forEach((planner) => {
-    planner.tasks?.forEach((task) => {
+  planners.forEach((planner: Planner) => {
+    planner.tasks?.forEach((task: Task) => {
       if (!task.completed && task.endDate <= today) {
         urgentTasks.push({
           task,
@@ -129,7 +135,7 @@ export const showDailyReminder = (planners) => {
 }
 
 // Set up daily reminders
-export const setupDailyReminders = (planners) => {
+export const setupDailyReminders = (planners: Planner[]) => {
   if (typeof window === "undefined") {
     return
   }

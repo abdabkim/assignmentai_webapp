@@ -1,8 +1,10 @@
 // PDF export functionality using html2pdf.js
+import type { Planner, Task } from "./storage"
 
-export const exportToPDF = async (planner) => {
+export const exportToPDF = async (planner: Planner) => {
   try {
     // Dynamically import html2pdf to avoid SSR issues
+    // @ts-ignore - html2pdf.js doesn't have TypeScript types
     const html2pdf = (await import("html2pdf.js")).default
 
     // Create HTML content for the PDF
@@ -25,7 +27,7 @@ export const exportToPDF = async (planner) => {
   }
 }
 
-const createPDFContent = (planner) => {
+const createPDFContent = (planner: Planner) => {
   const progress = calculateProgress(planner.tasks)
   const dueDate = new Date(planner.dueDate).toLocaleDateString()
 
@@ -42,7 +44,6 @@ const createPDFContent = (planner) => {
         <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 15px 0;">
           <p><strong>Due Date:</strong> ${dueDate}</p>
           <p><strong>Progress:</strong> ${progress}% Complete</p>
-          ${planner.wordCount ? `<p><strong>Target Word Count:</strong> ${planner.wordCount} words</p>` : ""}
           <p><strong>Topic:</strong></p>
           <p style="margin-left: 20px; line-height: 1.6;">${planner.topic}</p>
         </div>
@@ -50,9 +51,9 @@ const createPDFContent = (planner) => {
       
       <div style="margin-bottom: 30px;">
         <h2 style="color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">Task Breakdown</h2>
-        ${planner.tasks
+        ${(planner.tasks || [])
           .map(
-            (task, index) => `
+            (task: Task, index: number) => `
           <div style="margin: 20px 0; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; ${task.completed ? "background-color: #f0fdf4;" : ""}">
             <div style="display: flex; align-items: center; margin-bottom: 10px;">
               <span style="font-size: 18px; margin-right: 10px;">${task.completed ? "✅" : "⭕"}</span>
@@ -90,8 +91,8 @@ const createPDFContent = (planner) => {
   `
 }
 
-const calculateProgress = (tasks) => {
+const calculateProgress = (tasks: Task[] | undefined) => {
   if (!tasks || tasks.length === 0) return 0
-  const completed = tasks.filter((task) => task.completed).length
+  const completed = tasks.filter((task: Task) => task.completed).length
   return Math.round((completed / tasks.length) * 100)
 }

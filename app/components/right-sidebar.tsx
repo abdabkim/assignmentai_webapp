@@ -130,7 +130,7 @@ export default function RightSidebar({ planners }: RightSidebarProps) {
   return (
     <div className="h-full w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
       {/* Decorative Header */}
-      <div className="h-32 bg-gradient-to-br from-purple-400 via-pink-400 to-blue-400 relative overflow-hidden flex-shrink-0">
+      <div className="h-32 bg-blue-600 relative overflow-hidden flex-shrink-0">
         <div className="absolute inset-0 bg-black bg-opacity-20"></div>
         <div className="absolute bottom-4 left-4 text-white">
           <h3 className="font-semibold text-lg">Stay Organized</h3>

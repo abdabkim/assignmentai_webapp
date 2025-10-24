@@ -57,7 +57,7 @@ export default function LandingPage(): JSX.Element {
     {
       name: "Sarah Johnson",
       role: "Computer Science Student",
-      content: "EssayPlanner AI helped me break down my final project into manageable tasks. I finished 2 days early!",
+      content: "AssignmentPlanner AI helped me break down my final project into manageable tasks. I finished 2 days early!",
       rating: 5,
       avatar: "SJ",
       color: "from-purple-400 to-pink-400",
@@ -92,7 +92,7 @@ export default function LandingPage(): JSX.Element {
                   <BookOpen className="h-5 w-5 text-white" />
                 </div>
                 <span className="ml-2 text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  EssayPlanner AI
+                  AssignmentPlanner AI
                 </span>
               </div>
             </div>
@@ -301,7 +301,7 @@ export default function LandingPage(): JSX.Element {
                 Everywhere
               </span>
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 px-4">See what students are saying about EssayPlanner AI</p>
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 px-4">See what students are saying about AssignmentPlanner AI</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 px-4">
@@ -464,7 +464,7 @@ export default function LandingPage(): JSX.Element {
             <span className="block">Study Habits?</span>
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-purple-100 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
-            Join thousands of students who are already using EssayPlanner AI to stay organized and succeed in their
+            Join thousands of students who are already using AssignmentPlanner AI to stay organized and succeed in their
             studies.
           </p>
           <Link href="/signup">
@@ -488,7 +488,7 @@ export default function LandingPage(): JSX.Element {
                 <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
                   <BookOpen className="h-5 w-5 text-white" />
                 </div>
-                <span className="ml-2 text-xl font-bold">EssayPlanner AI</span>
+                <span className="ml-2 text-xl font-bold">AssignmentPlanner AI</span>
               </div>
               <p className="text-gray-400">AI-powered assignment planning for students who want to succeed.</p>
             </div>

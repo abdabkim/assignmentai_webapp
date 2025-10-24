@@ -10,33 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { signUp, signInWithGoogle, validateEmail, validatePassword } from "../lib/auth"
-
-// Local password validation function that returns the expected object structure
-const validatePasswordLocal = (password: string) => {
-  const errors: string[] = []
-  
-  if (password.length < 8) {
-    errors.push("Password must be at least 8 characters long")
-  }
-  if (!/[A-Z]/.test(password)) {
-    errors.push("Password must contain at least one uppercase letter")
-  }
-  if (!/[a-z]/.test(password)) {
-    errors.push("Password must contain at least one lowercase letter")
-  }
-  if (!/\d/.test(password)) {
-    errors.push("Password must contain at least one number")
-  }
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    errors.push("Password must contain at least one special character")
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  }
-}
+import { signUp, signInWithGoogle, validateEmail, validatePassword, validateUsername } from "../lib/auth"
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -60,7 +34,7 @@ export default function SignUpPage() {
 
     // Real-time password validation
     if (field === "password") {
-      const validation = validatePasswordLocal(value)
+      const validation = validatePassword(value)
       setPasswordErrors(validation.errors)
     }
   }
@@ -70,12 +44,9 @@ export default function SignUpPage() {
       setError("Full name is required")
       return false
     }
-    if (!formData.username.trim()) {
-      setError("Username is required")
-      return false
-    }
-    if (formData.username.length < 3) {
-      setError("Username must be at least 3 characters long")
+    const usernameValidation = validateUsername(formData.username)
+    if (!usernameValidation.isValid) {
+      setError(usernameValidation.error)
       return false
     }
     if (!formData.email.trim()) {
@@ -90,9 +61,10 @@ export default function SignUpPage() {
       setError("Password is required")
       return false
     }
-    const passwordValidation = validatePasswordLocal(formData.password)
+    const passwordValidation = validatePassword(formData.password)
     if (!passwordValidation.isValid) {
       setError("Please fix the password requirements below")
+      setPasswordErrors(passwordValidation.errors)
       return false
     }
     if (formData.password !== formData.confirmPassword) {
@@ -111,8 +83,8 @@ export default function SignUpPage() {
     setError("")
 
     try {
-      // signUp expects: email, password, fullName
-      await signUp(formData.email, formData.password, formData.fullName)
+      // signUp expects: email, password, fullName, username
+      await signUp(formData.email, formData.password, formData.fullName, formData.username)
       router.push("/login?message=Account created successfully! Please log in.")
     } catch (error: any) {
       setError(error.message || "Failed to create account")
@@ -136,7 +108,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-900 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex items-center justify-between mb-4">
@@ -150,7 +122,7 @@ export default function SignUpPage() {
             </Button>
             <div className="flex items-center">
               <BookOpen className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">EssayPlanner AI</span>
+              <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">AssignmentPlanner AI</span>
             </div>
             <div className="w-10"></div>
           </div>
@@ -190,9 +162,13 @@ export default function SignUpPage() {
                 placeholder="Choose a username"
                 value={formData.username}
                 onChange={(e) => handleInputChange("username", e.target.value)}
+                maxLength={20}
                 required
                 className="dark:bg-gray-800 dark:border-gray-600 dark:text-white"
               />
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                {formData.username.length}/20 characters (letters, numbers, underscores only)
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -232,11 +208,40 @@ export default function SignUpPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {passwordErrors.length > 0 && (
-                <div className="text-xs text-red-600 dark:text-red-400 space-y-1">
-                  {passwordErrors.map((error, index) => (
-                    <div key={index}>• {error}</div>
-                  ))}
+              {formData.password && (
+                <div className="space-y-2">
+                  {/* Password Strength Indicator */}
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((level) => {
+                      const meetsRequirement = 5 - passwordErrors.length >= level
+                      return (
+                        <div
+                          key={level}
+                          className={`h-1 flex-1 rounded transition-colors ${
+                            meetsRequirement
+                              ? passwordErrors.length === 0
+                                ? 'bg-green-500'
+                                : passwordErrors.length <= 2
+                                  ? 'bg-yellow-500'
+                                  : 'bg-red-500'
+                              : 'bg-gray-200 dark:bg-gray-700'
+                          }`}
+                        />
+                      )
+                    })}
+                  </div>
+                  {passwordErrors.length === 0 && (
+                    <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                      ✓ Strong password
+                    </div>
+                  )}
+                  {passwordErrors.length > 0 && (
+                    <div className="text-xs text-red-600 dark:text-red-400 space-y-1">
+                      {passwordErrors.map((error, index) => (
+                        <div key={index}>• {error}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
